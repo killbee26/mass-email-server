@@ -4,10 +4,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routes = require('./routes/index');
-
+const cors = require('cors'); // Import cors package
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.use(cors()); 
 // Middleware
 app.use(bodyParser.json());
 
