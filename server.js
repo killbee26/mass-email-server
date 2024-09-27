@@ -4,6 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routes = require('./routes/index');
+const fileRoutes = require('./routes/file');
 const cors = require('cors'); // Import cors package
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -13,7 +14,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // MongoDB Connection
-mongoose.connect(process.env.DB_URL, { // Use the environment variable
+mongoose.connect(process.env.MONGO_URI, { // Use the environment variable
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => console.log('MongoDB connected'))
@@ -21,6 +22,8 @@ mongoose.connect(process.env.DB_URL, { // Use the environment variable
 
 // Use Routes
 app.use('/api', routes);
+//Add file routes
+app.use('/api/file', fileRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

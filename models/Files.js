@@ -4,25 +4,28 @@ const { v4: uuidv4 } = require('uuid');
 const fileSchema = new mongoose.Schema({
     fileID: {
         type: String,
-        required: true,
-        default: uuidv4  // Automatically generates a UUID as the fileID
+        default: uuidv4, // Automatically generate a UUID for each file
     },
     fileName: {
         type: String,
-        required: true
+        required: true,
     },
     s3Key: {
         type: String,
-        required: true
+        required: true,
+    },
+    fileURL: {
+        type: String, // Store S3 file URL here
+        required: true,
+    },
+    uploadedBy: {
+        type: String,  // Reference to the User model
+        ref: 'User',
+        required: true,
     },
     createdAt: {
         type: Date,
-        default: Date.now
-    },
-    uploadedBy: {
-        type: mongoose.Schema.Types.String,
-        ref: 'User',  // Reference to the User model
-        required: true
+        default: Date.now,
     }
 });
 
