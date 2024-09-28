@@ -22,8 +22,7 @@ mongoose.connect(process.env.MONGO_URI, { // Use the environment variable
 
 // Use Routes
 app.use('/api', routes);
-//Add file routes
-app.use('/api/file', fileRoutes);
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

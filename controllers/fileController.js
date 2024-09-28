@@ -72,3 +72,82 @@ exports.downloadFile = async (req, res) => {
         res.status(500).json({ error: 'Error downloading file' });
     }
 };
+
+exports.getUserFilesWithDate = async (req, res) => {
+    const userID = req.user.userID;  // Extracted from the JWT middleware
+    const { startDate, endDate } = req.query;
+
+    try {
+         // Parse start and end date
+         const start = new Date(startDate);
+         const end = new Date(endDate);
+ 
+         // Validate dates
+         if (isNaN(start.valueOf()) || isNaN(end.valueOf())) {
+             return res.status(400).json({ error: 'Invalid date(s) provided.' });
+         }
+        const userFiles = await File.find({
+            uploadedBy: userID,
+            createdAt: {
+                $gte: start, // Start of the day for startDate
+                $lte: end, // End of the day for endDate
+            },
+        });
+        
+        if (!userFiles || userFiles.length === 0) {
+            return res.status(404).json({ message: "No files found for the user." });
+        }
+
+        res.status(200).json(userFiles);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Error fetching user files." });
+    }
+};
+
+
+exports.getUserFiles = async (req, res) => {
+    try {
+        const userId = req.user.id; // Assuming you are using some kind of authentication middleware
+
+        // Fetch all file objects for the user
+        const files = await File.find({ userId });
+
+        // Respond with the fetched files
+        return res.status(200).json(files);
+    } catch (error) {
+        console.error('Error fetching user files:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+
+exports.sendEmails = async (req, res) => {
+    const { fileIds } = req.body;  // Frontend sends the array of fileIDs
+  
+    try {
+      // Fetch the corresponding files from the database
+      const files = await File.find({ fileID: { $in: fileIds } });
+  
+      if (!files.length) {
+        return res.status(404).json({ message: "No files found" });
+      }
+  
+      // Extract the S3 keys from the fetched files
+      const s3Keys = files.map(file => file.s3Key);
+  
+      // Log the s3Keys to verify
+      console.info("S3 Keys: ", s3Keys);
+  
+      // Prepare payload for Lambda function
+      
+  
+      // Invoke the Lambda function
+      
+  
+    } catch (error) {
+      console.error("Error in sending emails: ", error);
+      res.status(500).json({ message: "Error sending emails", error });
+    }
+  };

@@ -8,4 +8,7 @@ router.post('/register', authController.registerUser);
 // Login route
 router.post('/login', authController.loginUser);
 
+//verify token
+router.get('/verifyToken',authController.verifyToken);
+
 module.exports = router;
