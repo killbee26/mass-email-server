@@ -124,10 +124,11 @@ exports.getUserFiles = async (req, res) => {
 
 
 exports.sendEmails = async (req, res) => {
-    const { fileIds } = req.body;  // Frontend sends the array of fileIDs
+    // Extract file IDs and email content from the request body
+    const { fileIds, sender, subject, body } = req.body;  // Frontend sends the array of fileIDs and email content
   
     try {
-      // Fetch the corresponding files from the database
+      // Fetch the corresponding files from the database based on file IDs
       const files = await File.find({ fileID: { $in: fileIds } });
   
       if (!files.length) {
@@ -135,19 +136,31 @@ exports.sendEmails = async (req, res) => {
       }
   
       // Extract the S3 keys from the fetched files
-      const s3Keys = files.map(file => file.s3Key);
+      const s3Keys = files.map((file) => file.s3Key);
   
       // Log the s3Keys to verify
       console.info("S3 Keys: ", s3Keys);
   
-      // Prepare payload for Lambda function
-      
+      // Prepare payload for Lambda function including S3 keys and email content
+      const params = {
+        FunctionName: 'sendBulkEmailsLambda',  // Replace with your Lambda function's name
+        Payload: JSON.stringify({
+          s3Keys,        // List of S3 keys (files)
+          sender,        // Email sender
+          subject,       // Email subject
+          body           // Email body content
+        }),  // Pass the S3 keys and email content to Lambda
+      };
   
       // Invoke the Lambda function
-      
+      const lambdaResponse = await lambda.invoke(params).promise();
+  
+      // Respond back to the client with success
+      res.status(200).json({ message: "Emails sent successfully", data: lambdaResponse });
   
     } catch (error) {
       console.error("Error in sending emails: ", error);
       res.status(500).json({ message: "Error sending emails", error });
     }
   };
+  
