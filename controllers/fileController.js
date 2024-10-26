@@ -8,6 +8,9 @@ const s3 = new AWS.S3({
     region: process.env.AWS_REGION
 });
 
+const lambda = new AWS.Lambda({
+    region: process.env.AWS_REGION, // Ensure the correct region
+  });
 // Upload file to S3
 exports.uploadFile = async (req, res) => {
     const { userID } = req.body;  // Assuming userID (UUID) is passed in the request
@@ -143,7 +146,7 @@ exports.sendEmails = async (req, res) => {
   
       // Prepare payload for Lambda function including S3 keys and email content
       const params = {
-        FunctionName: 'sendBulkEmailsLambda',  // Replace with your Lambda function's name
+        FunctionName: 'sendBulkEmails',  // Replace with your Lambda function's name
         Payload: JSON.stringify({
           s3Keys,        // List of S3 keys (files)
           sender,        // Email sender
@@ -151,6 +154,12 @@ exports.sendEmails = async (req, res) => {
           body           // Email body content
         }),  // Pass the S3 keys and email content to Lambda
       };
+      console.info("Sender:",sender);
+      console.info("Body:",body);
+      console.info("subject:",subject);
+
+
+      console.info(params.Payload);
   
       // Invoke the Lambda function
       const lambdaResponse = await lambda.invoke(params).promise();
