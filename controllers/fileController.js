@@ -13,7 +13,7 @@ const lambda = new AWS.Lambda({
   });
 // Upload file to S3
 exports.uploadFile = async (req, res) => {
-    const { userID } = req.body;  // Assuming userID (UUID) is passed in the request
+    const { userID } = req.user;  // Assuming userID (UUID) is passed in the request
     const file = req.file;        // Assuming you're using multer for file parsing
     
     if (!file) {
